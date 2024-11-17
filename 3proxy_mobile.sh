@@ -2,10 +2,7 @@
 
 # Установка необходимых пакетов
 apt update
-apt install -y build-essential unzip wget
-
-# Установка TTL на 65
-sysctl -w net.ipv4.ip_default_ttl=65
+apt install -y build-essential unzip wget iptables
 
 # Скачивание последней версии 3proxy
 wget https://github.com/3proxy/3proxy/archive/refs/tags/0.9.4.tar.gz -O 3proxy.tar.gz
@@ -86,3 +83,15 @@ echo "Доступ к прокси-серверу:"
 echo "Логин: $LOGIN"
 echo "Пароль: $PASSWORD"
 echo "SOCKS-прокси доступен по адресу: $SOCKS_PROXY"
+
+# Установка TTL на 65
+echo "Настройка TTL на 65..."
+sysctl -w net.ipv4.ip_default_ttl=65
+
+# Применение iptables для установки TTL на 65
+echo "Настройка iptables для TTL..."
+sudo iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65
+
+# Проверка, правильно ли настроен TTL
+echo "Проверка TTL..."
+ping -c 4 google.com
