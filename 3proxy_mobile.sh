@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Отключение IPv6
+echo "Отключаем IPv6..."
+sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+
+# Проверка IP адресов
+echo "Проверка IP-адресов..."
+ip addr show
+
+# Установка TTL на 65
+echo "Настройка TTL на 65..."
+sudo sysctl -w net.ipv4.ip_default_ttl=65
+
+# Применение iptables для установки TTL на 65
+echo "Настройка iptables для TTL..."
+sudo iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65
+
 # Установка необходимых пакетов
 apt update
 apt install -y build-essential unzip wget iptables
@@ -84,14 +102,6 @@ echo "Логин: $LOGIN"
 echo "Пароль: $PASSWORD"
 echo "SOCKS-прокси доступен по адресу: $SOCKS_PROXY"
 
-# Установка TTL на 65
-echo "Настройка TTL на 65..."
-sysctl -w net.ipv4.ip_default_ttl=65
-
-# Применение iptables для установки TTL на 65
-echo "Настройка iptables для TTL..."
-sudo iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65
-
-# Проверка, правильно ли настроен TTL
+# Проверка TTL
 echo "Проверка TTL..."
 ping -c 4 google.com
